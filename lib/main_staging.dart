@@ -1,4 +1,5 @@
 import 'package:init_project/app.dart';
-import 'package:init_project/config.dart';
+
+import 'config/config.dart';
 
 void main() => runAppWithEnv(EConfigEnv.staging);

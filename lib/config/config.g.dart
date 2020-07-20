@@ -8,11 +8,11 @@ part of 'config.dart';
 
 _ConfigData _$_ConfigDataFromJson(Map<String, dynamic> json) {
   return _ConfigData(
-    apiUrl: json['apiUrl'] as String,
+    frontendUrl: json['frontendUrl'] as String,
   );
 }
 
 Map<String, dynamic> _$_ConfigDataToJson(_ConfigData instance) =>
     <String, dynamic>{
-      'apiUrl': instance.apiUrl,
+      'frontendUrl': instance.frontendUrl,
     };

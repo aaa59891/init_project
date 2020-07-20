@@ -3,9 +3,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-/// This allows the `User` class to access private members in
-/// the generated file. The value for this is *.g.dart, where
-/// the star denotes the source file name.
 part 'config.g.dart';
 
 enum EConfigEnv { prod, dev, staging }
@@ -14,10 +11,8 @@ enum EConfigEnv { prod, dev, staging }
 /// JSON serialization logic to be generated.
 @JsonSerializable()
 class _ConfigData {
-  static Future<_ConfigData> buildConfigFromEnv(EConfigEnv env) async {}
-
-  final String apiUrl;
-  _ConfigData({this.apiUrl});
+  final String frontendUrl;
+  _ConfigData({this.frontendUrl});
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_XXXFromJson()` constructor.
@@ -30,16 +25,20 @@ class _ConfigData {
   /// helper method `_XXXToJson`.
   Map<String, dynamic> toJson() => _$_ConfigDataToJson(this);
 
-  _ConfigData _overrideConfigFromJson(Map<String, dynamic> json) {
-    final apiUrl = json['apiUrl'];
-    return _ConfigData(
-      apiUrl: apiUrl == null ? this.apiUrl : apiUrl,
-    );
+  _ConfigData _overrideConfigFromConfigData(_ConfigData data) {
+    return _ConfigData(frontendUrl: data.frontendUrl ?? this.frontendUrl);
   }
 }
 
 class Config {
   _ConfigData _data;
+
+  static final Config _config = Config._internal();
+  Config._internal();
+
+  factory Config() {
+    return _config;
+  }
 
   _ConfigData getConfig() {
     if (this._data == null) {
@@ -50,14 +49,13 @@ class Config {
 
   Future<void> setupConfig(EConfigEnv env) async {
     final enumString = env.toString().split(".").last;
+
     final defaultConfigString =
         await rootBundle.loadString('assets/config/default.json');
     final defaultConfig = _ConfigData.fromJson(jsonDecode(defaultConfigString));
     final configStringFromAsset =
         await rootBundle.loadString('assets/config/$enumString.json');
-    this._data = defaultConfig
-        ._overrideConfigFromJson(jsonDecode(configStringFromAsset));
+    this._data = defaultConfig._overrideConfigFromConfigData(
+        _ConfigData.fromJson(jsonDecode(configStringFromAsset)));
   }
 }
-
-final Config config = Config();
